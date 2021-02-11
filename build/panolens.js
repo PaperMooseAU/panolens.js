@@ -4,7 +4,7 @@
 	(global = global || self, factory(global.PANOLENS = {}, global.THREE));
 }(this, function (exports, THREE) { 'use strict';
 
-	const version="0.11.0";const dependencies={three:"^0.105.2"};
+	const version="0.11.1";const dependencies={three:"^0.105.2"};
 
 	/**
 	 * REVISION
@@ -3038,7 +3038,6 @@
 	        } );
 
 	        // Add fullscreen stlye if not exists
-	        console.log('hi');
 	        if ( !document.querySelector( '#' + stylesheetId ) ) {
 	            const sheet = document.createElement( 'style' );
 	            sheet.id = stylesheetId;

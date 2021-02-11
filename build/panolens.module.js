@@ -1,6 +1,6 @@
 import { Cache, Texture, RGBFormat, RGBAFormat, CubeTexture, EventDispatcher, VideoTexture, LinearFilter, SpriteMaterial, Sprite, Color, CanvasTexture, DoubleSide, Vector3, Mesh, BackSide, Object3D, SphereBufferGeometry, MeshBasicMaterial, BufferGeometry, BufferAttribute, ShaderLib, BoxBufferGeometry, ShaderMaterial, Matrix4, Vector2, Quaternion, PlaneBufferGeometry, Math as Math$1, MOUSE, PerspectiveCamera, OrthographicCamera, Euler, Scene, StereoCamera, WebGLRenderTarget, NearestFilter, WebGLRenderer, Raycaster, Frustum, REVISION as REVISION$1 } from 'three';
 
-const version="0.11.0";const dependencies={three:"^0.105.2"};
+const version="0.11.1";const dependencies={three:"^0.105.2"};
 
 /**
  * REVISION
@@ -3034,7 +3034,6 @@ Widget.prototype = Object.assign( Object.create( EventDispatcher.prototype ), {
         } );
 
         // Add fullscreen stlye if not exists
-        console.log('hi');
         if ( !document.querySelector( '#' + stylesheetId ) ) {
             const sheet = document.createElement( 'style' );
             sheet.id = stylesheetId;
