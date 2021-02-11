@@ -468,7 +468,7 @@ Widget.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
         } );
 
         // Add fullscreen stlye if not exists
-        if ( !document.querySelector( stylesheetId ) ) {
+        if ( !document.querySelector( '#' + stylesheetId ) ) {
             const sheet = document.createElement( 'style' );
             sheet.id = stylesheetId;
             sheet.innerHTML = ':-webkit-full-screen { width: 100% !important; height: 100% !important }';
