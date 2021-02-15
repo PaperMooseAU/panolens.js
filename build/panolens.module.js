@@ -1,6 +1,6 @@
 import { Cache, Texture, RGBFormat, RGBAFormat, CubeTexture, EventDispatcher, VideoTexture, LinearFilter, SpriteMaterial, Sprite, Color, CanvasTexture, DoubleSide, Vector3, Mesh, BackSide, Object3D, SphereBufferGeometry, MeshBasicMaterial, BufferGeometry, BufferAttribute, ShaderLib, BoxBufferGeometry, ShaderMaterial, Matrix4, Vector2, Quaternion, PlaneBufferGeometry, Math as Math$1, MOUSE, PerspectiveCamera, OrthographicCamera, Euler, Scene, StereoCamera, WebGLRenderTarget, NearestFilter, WebGLRenderer, Raycaster, Frustum, REVISION as REVISION$1 } from 'three';
 
-const version="0.11.1";const dependencies={three:"^0.105.2"};
+const version="0.11.1";const peerDependencies={three:"^0.105.2"};
 
 /**
  * REVISION
@@ -24,7 +24,7 @@ const VERSION = version;
  * @example PANOLENS.THREE_REVISION
  * @type {string} threejs revision
  */
-const THREE_REVISION = dependencies.three.split( '.' )[ 1 ];
+const THREE_REVISION = peerDependencies.three.split( '.' )[ 1 ];
 
 /**
  * THREEJS VERSION
@@ -32,7 +32,7 @@ const THREE_REVISION = dependencies.three.split( '.' )[ 1 ];
  * @example PANOLENS.THREE_VERSION
  * @type {string} threejs version
  */
-const THREE_VERSION = dependencies.three.replace( /[^0-9.]/g, '' );
+const THREE_VERSION = peerDependencies.three.replace( /[^0-9.]/g, '' );
 
 /**
  * CONTROLS
@@ -7537,7 +7537,7 @@ function Viewer ( options ) {
     this.renderer.domElement.classList.add( 'panolens-canvas' );
     this.renderer.domElement.style.display = 'block';
     this.container.style.backgroundColor = '#000';
-    this.container.appendChild( this.renderer.domElement );
+    // this.container.appendChild( this.renderer.domElement );
 
     // Camera Controls
     this.OrbitControls = new OrbitControls( this.camera, this.container );

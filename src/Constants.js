@@ -1,4 +1,4 @@
-import { version, dependencies } from '../package.json';
+import { version, peerDependencies } from '../package.json';
 
 /**
  * REVISION
@@ -22,7 +22,7 @@ export const VERSION = version;
  * @example PANOLENS.THREE_REVISION
  * @type {string} threejs revision
  */
-export const THREE_REVISION = dependencies.three.split( '.' )[ 1 ];
+export const THREE_REVISION = peerDependencies.three.split( '.' )[ 1 ];
 
 /**
  * THREEJS VERSION
@@ -30,7 +30,7 @@ export const THREE_REVISION = dependencies.three.split( '.' )[ 1 ];
  * @example PANOLENS.THREE_VERSION
  * @type {string} threejs version
  */
-export const THREE_VERSION = dependencies.three.replace( /[^0-9.]/g, '' );
+export const THREE_VERSION = peerDependencies.three.replace( /[^0-9.]/g, '' );
 
 /**
  * CONTROLS

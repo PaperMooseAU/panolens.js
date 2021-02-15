@@ -4,7 +4,7 @@
 	(global = global || self, factory(global.PANOLENS = {}, global.THREE));
 }(this, function (exports, THREE) { 'use strict';
 
-	const version="0.11.1";const dependencies={three:"^0.105.2"};
+	const version="0.11.1";const peerDependencies={three:"^0.105.2"};
 
 	/**
 	 * REVISION
@@ -28,7 +28,7 @@
 	 * @example PANOLENS.THREE_REVISION
 	 * @type {string} threejs revision
 	 */
-	const THREE_REVISION = dependencies.three.split( '.' )[ 1 ];
+	const THREE_REVISION = peerDependencies.three.split( '.' )[ 1 ];
 
 	/**
 	 * THREEJS VERSION
@@ -36,7 +36,7 @@
 	 * @example PANOLENS.THREE_VERSION
 	 * @type {string} threejs version
 	 */
-	const THREE_VERSION = dependencies.three.replace( /[^0-9.]/g, '' );
+	const THREE_VERSION = peerDependencies.three.replace( /[^0-9.]/g, '' );
 
 	/**
 	 * CONTROLS
@@ -7541,7 +7541,7 @@
 	    this.renderer.domElement.classList.add( 'panolens-canvas' );
 	    this.renderer.domElement.style.display = 'block';
 	    this.container.style.backgroundColor = '#000';
-	    this.container.appendChild( this.renderer.domElement );
+	    // this.container.appendChild( this.renderer.domElement );
 
 	    // Camera Controls
 	    this.OrbitControls = new OrbitControls( this.camera, this.container );

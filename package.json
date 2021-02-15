@@ -124,7 +124,8 @@
     "rollup-plugin-node-resolve": "^5.0.1",
     "xmlhttprequest": "^1.8.0"
   },
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "three": "^0.105.2"
   },
   "jspm": {
