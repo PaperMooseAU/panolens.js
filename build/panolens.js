@@ -2554,7 +2554,6 @@
 	    dispose: function () {
 
 	        const { geometry, material } = this;
-	        const { map } = material;
 
 	        this.removeHoverElement();
 
@@ -2564,7 +2563,7 @@
 
 	        }
 
-	        if ( map ) { map.dispose(); material.map = null; }
+	        if ( material && material.map ) { material.map.dispose(); material.map = null; }
 	        if ( geometry ) { geometry.dispose(); this.geometry = null; }
 	        if ( material ) { material.dispose(); this.material = null; }
 
