@@ -1978,11 +1978,23 @@ function Infospot ( scale = 300, imageSrc, animated ) {
     this.showAnimation = new Tween.Tween( this.material )
         .to( { opacity: 1 }, duration )
         .onStart( this.enableRaycast.bind( this, true ) )
+        .onStart( () => {
+            this.dispatchEvent({ type: 'show-start' });
+        } )
+        .onComplete( () => {
+            this.dispatchEvent({ type: 'show-complete' });
+        } )
         .easing( Tween.Easing.Quartic.Out );
 
     this.hideAnimation = new Tween.Tween( this.material )
         .to( { opacity: 0 }, duration )
         .onStart( this.enableRaycast.bind( this, false ) )
+        .onStart( () => {
+            this.dispatchEvent({ type: 'hide-start' });
+        } )
+        .onComplete( () => {
+            this.dispatchEvent({ type: 'hide-complete' });
+        } )
         .easing( Tween.Easing.Quartic.Out );
 
     // Attach event listeners
