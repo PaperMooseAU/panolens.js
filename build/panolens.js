@@ -4,7 +4,7 @@
 	(global = global || self, factory(global.PANOLENS = {}, global.THREE));
 }(this, function (exports, THREE) { 'use strict';
 
-	const version="0.13.0";const peerDependencies={three:"^0.105.2"};
+	const version="0.13.1";const peerDependencies={three:"^0.105.2"};
 
 	/**
 	 * REVISION
