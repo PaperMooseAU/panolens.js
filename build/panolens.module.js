@@ -4334,11 +4334,8 @@ Panorama.prototype = Object.assign( Object.create( Mesh.prototype ), {
 
     onFadeAnimationUpdate: function () {
 
-        const alpha = this.material.opacity;
-        const { uniforms } = this.material;
-
-        if ( uniforms && uniforms.opacity ) {
-            uniforms.opacity.value = alpha;
+        if (this.material && this.material.uniforms && this.material.uniforms.opacity ) {
+            uniforms.opacity.value = this.material.opacity;
         }
 
     },
