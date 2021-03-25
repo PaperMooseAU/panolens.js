@@ -23,11 +23,44 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     this.enabled = true;
 
+    this.gyroPermissionGranted = false;
+
     this.deviceOrientation = {};
     this.screenOrientation = 0;
 
     this.alpha = 0;
     this.alphaOffsetAngle = 0;
+
+    var requestGyroAccess = function() {
+
+        return new Promise( function( resolve ) {
+
+            if (scope.gyroPermissionGranted) {
+
+                resolve();
+
+            }
+
+            if ( typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission ) {
+
+                return DeviceMotionEvent.requestPermission().then( function() {
+
+                    if ( result === 'denied' ) {
+
+                        throw new Error( 'Device motion permission denied.' );
+
+                    }
+
+                } );
+
+            } else {
+
+                resolve();
+
+            }
+        } );
+
+    };
 
 
     var onDeviceOrientationChangeEvent = function( event ) {
@@ -120,16 +153,26 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     this.connect = function() {
 
-        onScreenOrientationChangeEvent(); // run once on load
+        var scope = this;
 
-        window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
-        window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
-        window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+        requestGyroAccess.then( function() {
 
-        scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
-        scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+            onScreenOrientationChangeEvent(); // run once on load
 
-        scope.enabled = true;
+            window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
+            window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
+            window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+
+            scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
+            scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+
+            scope.enabled = true;
+
+        } ).catch( function(error) {
+            
+            scope.dispatchEvent( { type: 'error', error: error } );
+
+        } );
 
     };
 
@@ -175,7 +218,17 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     };
 
-    this.connect();
+    this.addEventListener( 'enabled', function () {
+
+        this.connect();
+
+    } );
+
+    this.addEventListener( 'disabled', function () {
+
+        this.disconnect();
+
+    } );
 
 };
 

@@ -179,7 +179,7 @@ function Viewer ( options ) {
 
     // Controls
     this.controls = [ this.OrbitControls, this.DeviceOrientationControls ];
-    this.control = this.OrbitControls;
+    this.enableControl( 0 );
 
     // Cardboard effect
     this.CardboardEffect = new CardboardEffect( this.renderer );
@@ -971,11 +971,19 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
         index = ( index >= 0 && index < this.controls.length ) ? index : 0;
 
-        this.control.enabled = false;
+        if ( this.control ) {
+
+            this.control.enabled = false;
+
+            this.control.dispatchEvent( { type: 'disabled' } );
+
+        }
 
         this.control = this.controls[ index ];
 
         this.control.enabled = true;
+
+        this.control.dispatchEvent( { type: 'enabled' } );
 
         switch ( index ) {
 
