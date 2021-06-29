@@ -38,6 +38,7 @@ import TWEEN from '@tweenjs/tween.js';
  * @param {boolean} [options.autoRotate=false] - Auto rotate
  * @param {number}  [options.autoRotateSpeed=2.0] - Auto rotate speed as in degree per second. Positive is counter-clockwise and negative is clockwise.
  * @param {number}  [options.autoRotateActivationDuration=5000] - Duration before auto rotatation when no user interactivity in ms
+ * @param {boolean} [options.autoCentre=false] - Automatically align new scenes to the current direction of the viewer
  */
 function Viewer ( options ) {
 
@@ -61,6 +62,7 @@ function Viewer ( options ) {
     options.autoRotate = options.autoRotate || false;
     options.autoRotateSpeed = options.autoRotateSpeed || 2.0;
     options.autoRotateActivationDuration = options.autoRotateActivationDuration || 5000;
+    options.autoCentre = options.autoCentre || false;
 
     this.options = options;
 
@@ -359,10 +361,16 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
             // Clear exisiting infospot
             this.hideInfospot();
 
-            const afterEnterComplete = function () {
+            const afterEnterComplete = () => {
 
                 if ( leavingPanorama ) { leavingPanorama.onLeave(); }
                 pano.removeEventListener( 'enter-fade-start', afterEnterComplete );
+
+                if ( this.options.autoCentre ) {
+
+                    this.centreActivePanorama();
+
+                }
 
             };
 
@@ -1047,6 +1055,21 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
     },
 
     /**
+     * Calculate the camera rotation around the y axis, relative to to facing directly down +z axis (in radians)
+     * @memberOf Viewer
+     * @instance
+     * @returns {number} Current angle of rotation of the camera (radians)
+     */
+    getCameraHeading: function () {
+
+        const cameraForward = new THREE.Vector3();
+        this.camera.getWorldDirection(cameraForward);
+        var rotation = Math.atan2(cameraForward.z, cameraForward.x);
+        return rotation + THREE.Math.degToRad(180);
+
+    },
+
+    /**
      * Check Sprite in Viewport
      * @memberOf Viewer
      * @instance
@@ -1084,6 +1107,19 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
         this.reticle.hide();
         this.camera.add( this.reticle );
         this.sceneReticle.add( this.camera );
+
+    },
+
+    /**
+     * Rotate the active panorama to align to the current forward heading of the camera 
+     * @memberOf Viewer
+     * @instance
+     */
+    centreActivePanorama() {
+
+        var currentHeading = this.getCameraHeading();
+        // Rotate against the current heading
+        this.panorama.rotation.y = currentHeading * -1;
 
     },
 
