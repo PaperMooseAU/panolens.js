@@ -7016,7 +7016,23 @@
 
 	    }
 
-	    this.dispose = function() {
+	    this.connect = function() {
+
+	        // this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	        this.domElement.addEventListener( 'mousedown', onMouseDown, { passive: false } );
+	        this.domElement.addEventListener( 'mousewheel', onMouseWheel, { passive: false } );
+	        this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, { passive: false } ); // firefox
+
+	        this.domElement.addEventListener( 'touchstart', touchstart, { passive: false } );
+	        this.domElement.addEventListener( 'touchend', touchend, { passive: false } );
+	        this.domElement.addEventListener( 'touchmove', touchmove, { passive: false } );
+
+	        window.addEventListener( 'keyup', onKeyUp, { passive: false } );
+	        window.addEventListener( 'keydown', onKeyDown, { passive: false } );
+
+	    };
+
+	    this.disconnect = function() {
 
 	        this.domElement.removeEventListener( 'mousedown', onMouseDown );
 	        this.domElement.removeEventListener( 'mousewheel', onMouseWheel );
@@ -7031,17 +7047,23 @@
 
 	    };
 
-	    // this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-	    this.domElement.addEventListener( 'mousedown', onMouseDown, { passive: false } );
-	    this.domElement.addEventListener( 'mousewheel', onMouseWheel, { passive: false } );
-	    this.domElement.addEventListener( 'DOMMouseScroll', onMouseWheel, { passive: false } ); // firefox
+	    this.dispose = function() {
 
-	    this.domElement.addEventListener( 'touchstart', touchstart, { passive: false } );
-	    this.domElement.addEventListener( 'touchend', touchend, { passive: false } );
-	    this.domElement.addEventListener( 'touchmove', touchmove, { passive: false } );
+	        this.disconnect();
 
-	    window.addEventListener( 'keyup', onKeyUp, { passive: false } );
-	    window.addEventListener( 'keydown', onKeyDown, { passive: false } );
+	    };
+
+	    this.addEventListener( 'enabled', function () {
+
+	        this.connect();
+
+	    } );
+
+	    this.addEventListener( 'disabled', function () {
+
+	        this.disconnect();
+
+	    } );
 
 	    // force an update at start
 	    this.update();
@@ -7076,11 +7098,52 @@
 
 	    this.enabled = true;
 
+	    this.gyroPermissionGranted = false;
+
 	    this.deviceOrientation = {};
 	    this.screenOrientation = 0;
 
 	    this.alpha = 0;
 	    this.alphaOffsetAngle = 0;
+
+	    var requestGyroAccess = function() {
+
+	        return new Promise( function( resolve ) {
+
+	            if (scope.gyroPermissionGranted) {
+
+	                resolve();
+
+	            }
+
+	            if ( typeof DeviceOrientationEvent !== 'undefined' ) {
+
+	                if ( DeviceOrientationEvent.requestPermission ) {
+
+	                    return DeviceOrientationEvent.requestPermission().then( function() {
+
+	                        if ( result === 'denied' ) {
+
+	                            throw new Error( 'Device motion permission denied.' );
+
+	                        }
+
+	                    } );
+
+	                } else {
+
+	                    resolve();
+
+	                }
+
+	            } else {
+
+	                reject(new Error( 'No gyro support detected.' ));
+
+	            }
+	        } );
+
+	    };
 
 
 	    var onDeviceOrientationChangeEvent = function( event ) {
@@ -7173,16 +7236,26 @@
 
 	    this.connect = function() {
 
-	        onScreenOrientationChangeEvent(); // run once on load
+	        var scope = this;
 
-	        window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
-	        window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
-	        window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+	        requestGyroAccess().then( function() {
 
-	        scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
-	        scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+	            onScreenOrientationChangeEvent(); // run once on load
 
-	        scope.enabled = true;
+	            window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
+	            window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
+	            window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+
+	            scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
+	            scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+
+	            scope.enabled = true;
+
+	        } ).catch( function(error) {
+	            
+	            scope.dispatchEvent( { type: 'error', error: error } );
+
+	        } );
 
 	    };
 
@@ -7228,7 +7301,17 @@
 
 	    };
 
-	    this.connect();
+	    this.addEventListener( 'enabled', function () {
+
+	        this.connect();
+
+	    } );
+
+	    this.addEventListener( 'disabled', function () {
+
+	        this.disconnect();
+
+	    } );
 
 	}
 	DeviceOrientationControls.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype), {
@@ -7432,6 +7515,7 @@
 	 * @param {boolean} [options.autoRotate=false] - Auto rotate
 	 * @param {number}  [options.autoRotateSpeed=2.0] - Auto rotate speed as in degree per second. Positive is counter-clockwise and negative is clockwise.
 	 * @param {number}  [options.autoRotateActivationDuration=5000] - Duration before auto rotatation when no user interactivity in ms
+	 * @param {number}  [options.defaultControlIndex=0] - Default control method to use (see CONTROLS constant). Defaults to ORBIT.
 	 */
 	function Viewer ( options ) {
 
@@ -7455,6 +7539,7 @@
 	    options.autoRotate = options.autoRotate || false;
 	    options.autoRotateSpeed = options.autoRotateSpeed || 2.0;
 	    options.autoRotateActivationDuration = options.autoRotateActivationDuration || 5000;
+	    options.defaultControlIndex = options.defaultControlIndex !== undefined ? options.defaultControlIndex : CONTROLS.ORBIT;
 
 	    this.options = options;
 
@@ -7573,7 +7658,6 @@
 
 	    // Controls
 	    this.controls = [ this.OrbitControls, this.DeviceOrientationControls ];
-	    this.control = this.OrbitControls;
 
 	    // Cardboard effect
 	    this.CardboardEffect = new CardboardEffect( this.renderer );
@@ -7623,6 +7707,9 @@
 
 	    // Register dom event listeners
 	    this.registerEventListeners();
+
+	    // Enable default controller
+	    this.enableControl( options.defaultControlIndex );
 
 	    // Animate
 	    this.animate.call( this );
@@ -7813,6 +7900,12 @@
 	     * @instance
 	     */
 	    activateWidgetItem: function ( controlIndex, mode ) {
+
+	        if ( !this.widget ) {
+
+	            return;
+
+	        }
 
 	        const mainMenu = this.widget.mainMenu;
 	        const ControlMenuItem = mainMenu.children[ 0 ];
@@ -8314,6 +8407,18 @@
 	    },
 
 	    /**
+	     * Get current control index
+	     * @memberOf Viewer
+	     * @instance
+	     * @returns {number} - Control index
+	     */
+	    getControlIndex: function () {
+
+	        return this.controls.indexOf(this.control);
+
+	    },
+
+	    /**
 	     * Get next navigation control id
 	     * @memberOf Viewer
 	     * @instance
@@ -8334,8 +8439,7 @@
 	    getNextControlIndex: function () {
 
 	        const controls = this.controls;
-	        const control = this.control;
-	        const nextIndex = controls.indexOf( control ) + 1;
+	        const nextIndex = this.getControlIndex() + 1;
 
 	        return ( nextIndex >= controls.length ) ? 0 : nextIndex;
 
@@ -8364,30 +8468,44 @@
 
 	        index = ( index >= 0 && index < this.controls.length ) ? index : 0;
 
-	        this.control.enabled = false;
+	        if ( this.control ) {
+
+	            this.control.enabled = false;
+
+	            this.control.dispatchEvent( { type: 'disabled' } );
+
+	        }
 
 	        this.control = this.controls[ index ];
 
+	        console.log(`Enabling control: ${this.control.id} (idx ${index})`);
+
 	        this.control.enabled = true;
 
-	        switch ( index ) {
+	        this.control.dispatchEvent( { type: 'enabled' } );
 
-	        case CONTROLS.ORBIT:
+	        if ( this.panorama ) {
 
-	            this.camera.position.copy( this.panorama.position );
-	            this.camera.position.z += 1;
+	            switch ( index ) {
 
-	            break;
+	            case CONTROLS.ORBIT:
 
-	        case CONTROLS.DEVICEORIENTATION:
+	                this.camera.position.copy( this.panorama.position );
+	                this.camera.position.z += 1;
 
-	            this.camera.position.copy( this.panorama.position );
+	                break;
 
-	            break;
+	            case CONTROLS.DEVICEORIENTATION:
 
-	        default:
+	                this.camera.position.copy( this.panorama.position );
 
-	            break;
+	                break;
+
+	            default:
+
+	                break;
+	            }
+
 	        }
 
 	        this.control.update();

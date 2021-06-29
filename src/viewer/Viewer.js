@@ -38,6 +38,7 @@ import TWEEN from '@tweenjs/tween.js';
  * @param {boolean} [options.autoRotate=false] - Auto rotate
  * @param {number}  [options.autoRotateSpeed=2.0] - Auto rotate speed as in degree per second. Positive is counter-clockwise and negative is clockwise.
  * @param {number}  [options.autoRotateActivationDuration=5000] - Duration before auto rotatation when no user interactivity in ms
+ * @param {number}  [options.defaultControlIndex=0] - Default control method to use (see CONTROLS constant). Defaults to ORBIT.
  */
 function Viewer ( options ) {
 
@@ -61,6 +62,7 @@ function Viewer ( options ) {
     options.autoRotate = options.autoRotate || false;
     options.autoRotateSpeed = options.autoRotateSpeed || 2.0;
     options.autoRotateActivationDuration = options.autoRotateActivationDuration || 5000;
+    options.defaultControlIndex = options.defaultControlIndex !== undefined ? options.defaultControlIndex : CONTROLS.ORBIT;
 
     this.options = options;
 
@@ -179,7 +181,6 @@ function Viewer ( options ) {
 
     // Controls
     this.controls = [ this.OrbitControls, this.DeviceOrientationControls ];
-    this.enableControl( 0 );
 
     // Cardboard effect
     this.CardboardEffect = new CardboardEffect( this.renderer );
@@ -229,6 +230,9 @@ function Viewer ( options ) {
 
     // Register dom event listeners
     this.registerEventListeners();
+
+    // Enable default controller
+    this.enableControl( options.defaultControlIndex );
 
     // Animate
     this.animate.call( this );
@@ -420,6 +424,13 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
      * @instance
      */
     activateWidgetItem: function ( controlIndex, mode ) {
+
+        // Control bar is disabled
+        if ( !this.widget ) {
+
+            return;
+
+        }
 
         const mainMenu = this.widget.mainMenu;
         const ControlMenuItem = mainMenu.children[ 0 ];
@@ -921,6 +932,18 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
     },
 
     /**
+     * Get current control index
+     * @memberOf Viewer
+     * @instance
+     * @returns {number} - Control index
+     */
+    getControlIndex: function () {
+
+        return this.controls.indexOf(this.control);
+
+    },
+
+    /**
      * Get next navigation control id
      * @memberOf Viewer
      * @instance
@@ -941,8 +964,7 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
     getNextControlIndex: function () {
 
         const controls = this.controls;
-        const control = this.control;
-        const nextIndex = controls.indexOf( control ) + 1;
+        const nextIndex = this.getControlIndex() + 1;
 
         return ( nextIndex >= controls.length ) ? 0 : nextIndex;
 
@@ -985,24 +1007,28 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
         this.control.dispatchEvent( { type: 'enabled' } );
 
-        switch ( index ) {
+        if ( this.panorama ) {
 
-        case CONTROLS.ORBIT:
+            switch ( index ) {
 
-            this.camera.position.copy( this.panorama.position );
-            this.camera.position.z += 1;
+            case CONTROLS.ORBIT:
 
-            break;
+                this.camera.position.copy( this.panorama.position );
+                this.camera.position.z += 1;
 
-        case CONTROLS.DEVICEORIENTATION:
+                break;
 
-            this.camera.position.copy( this.panorama.position );
+            case CONTROLS.DEVICEORIENTATION:
 
-            break;
+                this.camera.position.copy( this.panorama.position );
 
-        default:
+                break;
 
-            break;
+            default:
+
+                break;
+            }
+
         }
 
         this.control.update();

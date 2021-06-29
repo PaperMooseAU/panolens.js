@@ -41,21 +41,29 @@ function DeviceOrientationControls ( camera, domElement ) {
 
             }
 
-            if ( typeof DeviceMotionEvent !== 'undefined' && DeviceMotionEvent.requestPermission ) {
+            if ( typeof DeviceOrientationEvent !== 'undefined' ) {
 
-                return DeviceMotionEvent.requestPermission().then( function() {
+                if ( DeviceOrientationEvent.requestPermission ) {
 
-                    if ( result === 'denied' ) {
+                    return DeviceOrientationEvent.requestPermission().then( function() {
 
-                        throw new Error( 'Device motion permission denied.' );
+                        if ( result === 'denied' ) {
 
-                    }
+                            throw new Error( 'Device motion permission denied.' );
 
-                } );
+                        }
+
+                    } );
+
+                } else {
+
+                    resolve();
+
+                }
 
             } else {
 
-                resolve();
+                reject(new Error( 'No gyro support detected.' ));
 
             }
         } );
@@ -155,7 +163,7 @@ function DeviceOrientationControls ( camera, domElement ) {
 
         var scope = this;
 
-        requestGyroAccess.then( function() {
+        requestGyroAccess().then( function() {
 
             onScreenOrientationChangeEvent(); // run once on load
 
