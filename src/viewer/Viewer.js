@@ -997,7 +997,7 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
             this.control.enabled = false;
 
-            this.control.dispatchEvent( { type: 'disabled' } );
+            this.control.disconnect();
 
         }
 
@@ -1005,7 +1005,7 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
         this.control.enabled = true;
 
-        this.control.dispatchEvent( { type: 'enabled' } );
+        this.control.connect();
 
         if ( this.panorama ) {
 

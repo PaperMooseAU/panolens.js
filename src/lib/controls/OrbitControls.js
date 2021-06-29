@@ -859,18 +859,6 @@ function OrbitControls ( object, domElement ) {
 
     };
 
-    this.addEventListener( 'enabled', function () {
-
-        this.connect();
-
-    } );
-
-    this.addEventListener( 'disabled', function () {
-
-        this.disconnect();
-
-    } );
-
     // force an update at start
     this.update();
 

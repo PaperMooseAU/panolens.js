@@ -7053,18 +7053,6 @@
 
 	    };
 
-	    this.addEventListener( 'enabled', function () {
-
-	        this.connect();
-
-	    } );
-
-	    this.addEventListener( 'disabled', function () {
-
-	        this.disconnect();
-
-	    } );
-
 	    // force an update at start
 	    this.update();
 
@@ -7105,46 +7093,6 @@
 
 	    this.alpha = 0;
 	    this.alphaOffsetAngle = 0;
-
-	    var requestGyroAccess = function() {
-
-	        return new Promise( function( resolve ) {
-
-	            if (scope.gyroPermissionGranted) {
-
-	                resolve();
-
-	            }
-
-	            if ( typeof DeviceOrientationEvent !== 'undefined' ) {
-
-	                if ( DeviceOrientationEvent.requestPermission ) {
-
-	                    return DeviceOrientationEvent.requestPermission().then( function() {
-
-	                        if ( result === 'denied' ) {
-
-	                            throw new Error( 'Device motion permission denied.' );
-
-	                        }
-
-	                    } );
-
-	                } else {
-
-	                    resolve();
-
-	                }
-
-	            } else {
-
-	                reject(new Error( 'No gyro support detected.' ));
-
-	            }
-	        } );
-
-	    };
-
 
 	    var onDeviceOrientationChangeEvent = function( event ) {
 
@@ -7238,24 +7186,17 @@
 
 	        var scope = this;
 
-	        requestGyroAccess().then( function() {
 
-	            onScreenOrientationChangeEvent(); // run once on load
+	        onScreenOrientationChangeEvent(); // run once on load
 
-	            window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
-	            window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
-	            window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
+	        window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
+	        window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, { passive: true } );
+	        window.addEventListener( 'deviceorientation', this.update.bind( this ), { passive: true } );
 
-	            scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
-	            scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
+	        scope.domElement.addEventListener( 'touchstart', onTouchStartEvent, { passive: false } );
+	        scope.domElement.addEventListener( 'touchmove', onTouchMoveEvent, { passive: false } );
 
-	            scope.enabled = true;
-
-	        } ).catch( function(error) {
-	            
-	            scope.dispatchEvent( { type: 'error', error: error } );
-
-	        } );
+	        scope.enabled = true;
 
 	    };
 
@@ -7300,18 +7241,6 @@
 	        this.disconnect();
 
 	    };
-
-	    this.addEventListener( 'enabled', function () {
-
-	        this.connect();
-
-	    } );
-
-	    this.addEventListener( 'disabled', function () {
-
-	        this.disconnect();
-
-	    } );
 
 	}
 	DeviceOrientationControls.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype), {
@@ -7901,6 +7830,7 @@
 	     */
 	    activateWidgetItem: function ( controlIndex, mode ) {
 
+	        // Control bar is disabled
 	        if ( !this.widget ) {
 
 	            return;
@@ -8472,17 +8402,15 @@
 
 	            this.control.enabled = false;
 
-	            this.control.dispatchEvent( { type: 'disabled' } );
+	            this.control.disconnect();
 
 	        }
 
 	        this.control = this.controls[ index ];
 
-	        console.log(`Enabling control: ${this.control.id} (idx ${index})`);
-
 	        this.control.enabled = true;
 
-	        this.control.dispatchEvent( { type: 'enabled' } );
+	        this.control.connect();
 
 	        if ( this.panorama ) {
 
