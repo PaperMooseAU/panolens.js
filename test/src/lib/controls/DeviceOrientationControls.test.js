@@ -63,6 +63,7 @@ test('Window Orientation Change Event', t => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new DeviceOrientationControls( camera, container );
+    control.connect();
     const event = new window.Event( 'orientationchange' );
     window.orientation = 180;
     window.dispatchEvent( event );
@@ -83,6 +84,7 @@ test('Device Orientation Change Event', t => {
     const camera = new THREE.PerspectiveCamera();
     const container = document.createElement( 'div' );
     const control = new DeviceOrientationControls( camera, container );
+    control.connect();
     const event = new window.DeviceOrientationEvent();
     window.dispatchEvent( event );
     control.update();
