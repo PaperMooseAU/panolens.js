@@ -39,6 +39,7 @@ import TWEEN from '@tweenjs/tween.js';
  * @param {number}  [options.autoRotateSpeed=2.0] - Auto rotate speed as in degree per second. Positive is counter-clockwise and negative is clockwise.
  * @param {number}  [options.autoRotateActivationDuration=5000] - Duration before auto rotatation when no user interactivity in ms
  * @param {boolean} [options.autoCentre=false] - Automatically align new scenes to the current direction of the viewer
+ * @param {number}  [options.defaultControlIndex=0] - Default control method to use (see CONTROLS constant). Defaults to ORBIT.
  */
 function Viewer ( options ) {
 
@@ -63,6 +64,7 @@ function Viewer ( options ) {
     options.autoRotateSpeed = options.autoRotateSpeed || 2.0;
     options.autoRotateActivationDuration = options.autoRotateActivationDuration || 5000;
     options.autoCentre = options.autoCentre || false;
+    options.defaultControlIndex = options.defaultControlIndex !== undefined ? options.defaultControlIndex : CONTROLS.ORBIT;
 
     this.options = options;
 
@@ -181,7 +183,6 @@ function Viewer ( options ) {
 
     // Controls
     this.controls = [ this.OrbitControls, this.DeviceOrientationControls ];
-    this.control = this.OrbitControls;
 
     // Cardboard effect
     this.CardboardEffect = new CardboardEffect( this.renderer );
@@ -231,6 +232,9 @@ function Viewer ( options ) {
 
     // Register dom event listeners
     this.registerEventListeners();
+
+    // Enable default controller
+    this.enableControl( options.defaultControlIndex );
 
     // Animate
     this.animate.call( this );
@@ -428,6 +432,13 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
      * @instance
      */
     activateWidgetItem: function ( controlIndex, mode ) {
+
+        // Control bar is disabled
+        if ( !this.widget ) {
+
+            return;
+
+        }
 
         const mainMenu = this.widget.mainMenu;
         const ControlMenuItem = mainMenu.children[ 0 ];
@@ -929,6 +940,18 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
     },
 
     /**
+     * Get current control index
+     * @memberOf Viewer
+     * @instance
+     * @returns {number} - Control index
+     */
+    getControlIndex: function () {
+
+        return this.controls.indexOf(this.control);
+
+    },
+
+    /**
      * Get next navigation control id
      * @memberOf Viewer
      * @instance
@@ -949,8 +972,7 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
     getNextControlIndex: function () {
 
         const controls = this.controls;
-        const control = this.control;
-        const nextIndex = controls.indexOf( control ) + 1;
+        const nextIndex = this.getControlIndex() + 1;
 
         return ( nextIndex >= controls.length ) ? 0 : nextIndex;
 
@@ -979,30 +1001,42 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
 
         index = ( index >= 0 && index < this.controls.length ) ? index : 0;
 
-        this.control.enabled = false;
+        if ( this.control ) {
+
+            this.control.enabled = false;
+
+            this.control.disconnect();
+
+        }
 
         this.control = this.controls[ index ];
 
         this.control.enabled = true;
 
-        switch ( index ) {
+        this.control.connect();
 
-        case CONTROLS.ORBIT:
+        if ( this.panorama ) {
 
-            this.camera.position.copy( this.panorama.position );
-            this.camera.position.z += 1;
+            switch ( index ) {
 
-            break;
+            case CONTROLS.ORBIT:
 
-        case CONTROLS.DEVICEORIENTATION:
+                this.camera.position.copy( this.panorama.position );
+                this.camera.position.z += 1;
 
-            this.camera.position.copy( this.panorama.position );
+                break;
 
-            break;
+            case CONTROLS.DEVICEORIENTATION:
 
-        default:
+                this.camera.position.copy( this.panorama.position );
 
-            break;
+                break;
+
+            default:
+
+                break;
+            }
+
         }
 
         this.control.update();

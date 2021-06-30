@@ -23,12 +23,13 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     this.enabled = true;
 
+    this.gyroPermissionGranted = false;
+
     this.deviceOrientation = {};
     this.screenOrientation = 0;
 
     this.alpha = 0;
     this.alphaOffsetAngle = 0;
-
 
     var onDeviceOrientationChangeEvent = function( event ) {
 
@@ -120,6 +121,9 @@ function DeviceOrientationControls ( camera, domElement ) {
 
     this.connect = function() {
 
+        var scope = this;
+
+
         onScreenOrientationChangeEvent(); // run once on load
 
         window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, { passive: true } );
@@ -174,8 +178,6 @@ function DeviceOrientationControls ( camera, domElement ) {
         this.disconnect();
 
     };
-
-    this.connect();
 
 };
 
