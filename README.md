@@ -1,4 +1,4 @@
-# Panolens.js
+# Panolens.js (Paper Moose fork)
 
 [![NPM package][npm]][npm-url]
 [![License][license]][license-url]
@@ -8,6 +8,10 @@
 [![Dev Dependencies][dev-dependencies]][dev-dependencies-url]
 [![Language Grade][lgtm]][lgtm-url]
 [![Coverage][coverage]][coverage-url]
+
+## Fork notice
+
+This is a fork of the original [Panolens.js](https://github.com/pchen66/panolens.js) maintained by [Paper Moose](https://papermoose.com).
 
 ## Javascript 360 Panorama Viewer
 
