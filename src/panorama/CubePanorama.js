@@ -26,7 +26,7 @@ function CubePanorama ( images = [] ){
 
     this.images = images;
     this.edgeLength = edgeLength;
-    this.material.uniforms.opacity.value = 0;
+    this.background.material.uniforms.opacity.value = 0;
 
 }
 
@@ -61,7 +61,7 @@ CubePanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      */
     onLoad: function ( texture ) {
 		
-        this.material.uniforms[ 'tCube' ].value = texture;
+        this.background.material.uniforms[ 'tCube' ].value = texture;
 
         Panorama.prototype.onLoad.call( this );
 
@@ -74,7 +74,7 @@ CubePanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      */
     dispose: function () {	
 
-        const { value } = this.material.uniforms.tCube;
+        const { value } = this.background.material.uniforms.tCube;
 
         this.images.forEach( ( image ) => { THREE.Cache.remove( image ); } );
 

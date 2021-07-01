@@ -227,7 +227,7 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
 
     addZoomDelta: function ( delta ) {
 
-        const uniforms = this.material.uniforms;
+        const uniforms = this.background.material.uniforms;
         const lowerBound = this.size * 0.1;
         const upperBound = this.size * 10;
 
@@ -251,9 +251,9 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
 
         this.quatSlerp.slerp( this.quatCur, 0.1 );
 
-        if ( this.material ) {
+        if ( this.background.material ) {
 
-            this.material.uniforms.transform.value.makeRotationFromQuaternion( this.quatSlerp );
+            this.background.material.uniforms.transform.value.makeRotationFromQuaternion( this.quatSlerp );
 
         }
         
@@ -275,7 +275,7 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
 
     onLoad: function ( texture ) {
 
-        this.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
+        this.background.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
 
         this.registerMouseEvents();
         this.onUpdateCallback();
@@ -300,7 +300,7 @@ LittlePlanet.prototype = Object.assign( Object.create( ImagePanorama.prototype )
 
     onWindowResize: function () {
 
-        this.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
+        this.background.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
 
     },
 

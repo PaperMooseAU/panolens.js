@@ -20,8 +20,8 @@ test.cb('Dispose', t => {
     panorama.setContainer( container );
     panorama.addEventListener( 'load', ()=>{
         panorama.dispose();
-        t.falsy(panorama.geometry);
-        t.falsy(panorama.material);
+        t.falsy(panorama.background.geometry);
+        t.falsy(panorama.background.material);
         t.falsy(panorama.parent);
         t.end();
     } );

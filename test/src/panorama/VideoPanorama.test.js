@@ -95,7 +95,7 @@ test.cb('Video Non Loopable Video', t => {
         panorama.playVideo();
         setTimeout( ()=> {
             t.end();
-        }, 5000 )
+        }, 5000 );
     } );
     panorama.load();
 });
@@ -103,7 +103,7 @@ test.cb('Video Non Loopable Video', t => {
 test('Set Empty Video Texture', t => {
     const panorama = new VideoPanorama( videoURL );
     panorama.setVideoTexture( null );
-    t.falsy(panorama.material.map);
+    t.falsy(panorama.background.material.map);
 });
 
 test.cb('Reset', t => {
@@ -121,8 +121,8 @@ test.cb('Dispose', t => {
     const panorama = new VideoPanorama( videoURL );
     panorama.addEventListener( 'load', () => {
         panorama.dispose();
-        t.falsy(panorama.geometry);
-        t.falsy(panorama.material);
+        t.falsy(panorama.background.geometry);
+        t.falsy(panorama.background.material);
         t.falsy(panorama.parent);
         t.end();
     } );

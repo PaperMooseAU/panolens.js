@@ -42,7 +42,7 @@ ImageLittlePlanet.prototype = Object.assign( Object.create( LittlePlanet.prototy
 
         texture.minFilter = texture.magFilter = THREE.LinearFilter;
 		
-        this.material.uniforms[ 'tDiffuse' ].value = texture;
+        this.background.material.uniforms[ 'tDiffuse' ].value = texture;
 
     },
 
@@ -53,7 +53,7 @@ ImageLittlePlanet.prototype = Object.assign( Object.create( LittlePlanet.prototy
      */
     dispose: function () {
 
-        const tDiffuse = this.material.uniforms[ 'tDiffuse' ];
+        const tDiffuse = this.background.material.uniforms[ 'tDiffuse' ];
 
         if ( tDiffuse && tDiffuse.value ) {
 

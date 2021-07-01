@@ -55,8 +55,8 @@ test.cb('Dispose', t => {
     panorama.addEventListener( 'load', () => {
 
         panorama.dispose();
-        t.is(panorama.geometry, null);
-        t.is(panorama.material, null);
+        t.is(panorama.background.geometry, null);
+        t.is(panorama.background.material, null);
         t.is(object3D.parent, null);
         t.end();
 

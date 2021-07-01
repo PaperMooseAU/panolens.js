@@ -17,7 +17,7 @@ const images = [
 test.cb('Load Event', t => {
     const panorama = new CubePanorama( images );
     panorama.addEventListener( 'load', () => {
-        t.true(panorama.material.uniforms[ 'tCube' ].value instanceof THREE.CubeTexture);
+        t.true(panorama.background.material.uniforms[ 'tCube' ].value instanceof THREE.CubeTexture);
         t.end();
     } );
     panorama.load();
@@ -27,8 +27,8 @@ test.cb('Dispose', t => {
     const panorama = new CubePanorama( images );
     panorama.addEventListener( 'load', () => {
         panorama.dispose();
-        t.falsy(panorama.geometry);
-        t.falsy(panorama.material);
+        t.falsy(panorama.background.geometry);
+        t.falsy(panorama.background.material);
         t.end();
     } );
     panorama.load();

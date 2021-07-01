@@ -3845,7 +3845,12 @@
 	 */
 	function Panorama ( geometry, material ) {
 
-	    THREE.Mesh.call( this, geometry, material );
+	    THREE.Object3D.call( this );
+
+	    this.background = new THREE.Mesh(geometry, material);
+	    this.background.renderOrder = -1;
+	    this.background.scale.x = -1;
+	    this.add(this.background);
 
 	    this.type = 'panorama';
 
@@ -3870,11 +3875,8 @@
 	    this.linkingImageURL = undefined;
 	    this.linkingImageScale = undefined;
 
-	    this.material.side = THREE.BackSide;
-	    this.material.opacity = 0;
-
-	    this.scale.x *= -1;
-	    this.renderOrder = -1;
+	    this.background.material.side = THREE.BackSide;
+	    this.background.material.opacity = 0;
 
 	    this.active = false;
 
@@ -3888,7 +3890,7 @@
 
 	}
 
-	Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
+	Panorama.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), {
 
 	    constructor: Panorama,
 
@@ -3901,8 +3903,6 @@
 	     * @param {THREE.Object3D} object - The object to be added
 	     */
 	    add: function ( object ) {
-
-	        let invertedObject;
 
 	        if ( arguments.length > 1 ) {
 
@@ -3918,8 +3918,6 @@
 
 	        // In case of infospots
 	        if ( object instanceof Infospot ) {
-
-	            invertedObject = object;
 
 	            if ( object.dispatchEvent ) {
 
@@ -3941,18 +3939,9 @@
 
 	                }.bind( this ) } );
 	            }
-
-	        } else {
-
-	            // Counter scale.x = -1 effect
-	            invertedObject = new THREE.Object3D();
-	            invertedObject.scale.x = -1;
-	            invertedObject.scalePlaceHolder = true;
-	            invertedObject.add( object );
-
 	        }
 
-	        THREE.Object3D.prototype.add.call( this, invertedObject );
+	        THREE.Object3D.prototype.add.call( this, object );
 
 	    },
 
@@ -4131,8 +4120,8 @@
 	     */
 	    updateTexture: function ( texture ) {
 
-	        this.material.map = texture;
-	        this.material.needsUpdate = true;
+	        this.background.material.map = texture;
+	        this.background.material.needsUpdate = true;
 
 	    },
 
@@ -4285,7 +4274,7 @@
 
 	    setupTransitions: function () {
 
-	        this.fadeInAnimation = new Tween.Tween( this.material )
+	        this.fadeInAnimation = new Tween.Tween( this.background.material )
 	            .easing( Tween.Easing.Quartic.Out )
 	            .onStart( function () {
 
@@ -4301,7 +4290,7 @@
 
 	            }.bind( this ) );
 
-	        this.fadeOutAnimation = new Tween.Tween( this.material )
+	        this.fadeOutAnimation = new Tween.Tween( this.background.material )
 	            .easing( Tween.Easing.Quartic.Out )
 	            .onComplete( function () {
 
@@ -4338,8 +4327,8 @@
 
 	    onFadeAnimationUpdate: function () {
 
-	        if (this.material && this.material.uniforms && this.material.uniforms.opacity ) {
-	            uniforms.opacity.value = this.material.opacity;
+	        if (this.background.material && this.background.material.uniforms && this.background.material.uniforms.opacity ) {
+	            uniforms.opacity.value = this.background.material.opacity;
 	        }
 
 	    },
@@ -4631,7 +4620,7 @@
 	     */
 	    dispose: function () {
 
-	        const { material: { map } } = this;
+	        const map = this.background.material.map;
 
 	        // Release cached image
 	        THREE.Cache.remove( this.src );
@@ -4689,7 +4678,7 @@
 
 	    this.images = images;
 	    this.edgeLength = edgeLength;
-	    this.material.uniforms.opacity.value = 0;
+	    this.background.material.uniforms.opacity.value = 0;
 
 	}
 
@@ -4724,7 +4713,7 @@
 	     */
 	    onLoad: function ( texture ) {
 			
-	        this.material.uniforms[ 'tCube' ].value = texture;
+	        this.background.material.uniforms[ 'tCube' ].value = texture;
 
 	        Panorama.prototype.onLoad.call( this );
 
@@ -4737,7 +4726,7 @@
 	     */
 	    dispose: function () {	
 
-	        const { value } = this.material.uniforms.tCube;
+	        const { value } = this.background.material.uniforms.tCube;
 
 	        this.images.forEach( ( image ) => { THREE.Cache.remove( image ); } );
 
@@ -4845,7 +4834,7 @@
 
 	        const { muted, loop, autoplay, playsinline, crossOrigin } = this.options;
 	        const video = this.videoElement;
-	        const material = this.material;
+	        const material = this.background.material;
 	        const onProgress = this.onProgress.bind( this );
 	        const onLoad = this.onLoad.bind( this );
 
@@ -5252,7 +5241,7 @@
 	     */
 	    dispose: function () {
 
-	        const { material: { map } } = this;
+	        const map = this.background.material.map;
 
 	        this.pauseVideo();
 			
@@ -5958,7 +5947,7 @@
 
 	    addZoomDelta: function ( delta ) {
 
-	        const uniforms = this.material.uniforms;
+	        const uniforms = this.background.material.uniforms;
 	        const lowerBound = this.size * 0.1;
 	        const upperBound = this.size * 10;
 
@@ -5982,9 +5971,9 @@
 
 	        this.quatSlerp.slerp( this.quatCur, 0.1 );
 
-	        if ( this.material ) {
+	        if ( this.background.material ) {
 
-	            this.material.uniforms.transform.value.makeRotationFromQuaternion( this.quatSlerp );
+	            this.background.material.uniforms.transform.value.makeRotationFromQuaternion( this.quatSlerp );
 
 	        }
 	        
@@ -6006,7 +5995,7 @@
 
 	    onLoad: function ( texture ) {
 
-	        this.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
+	        this.background.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
 
 	        this.registerMouseEvents();
 	        this.onUpdateCallback();
@@ -6031,7 +6020,7 @@
 
 	    onWindowResize: function () {
 
-	        this.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
+	        this.background.material.uniforms.resolution.value = this.container.clientWidth / this.container.clientHeight;
 
 	    },
 
@@ -6092,7 +6081,7 @@
 
 	        texture.minFilter = texture.magFilter = THREE.LinearFilter;
 			
-	        this.material.uniforms[ 'tDiffuse' ].value = texture;
+	        this.background.material.uniforms[ 'tDiffuse' ].value = texture;
 
 	    },
 
@@ -6103,7 +6092,7 @@
 	     */
 	    dispose: function () {
 
-	        const tDiffuse = this.material.uniforms[ 'tDiffuse' ];
+	        const tDiffuse = this.background.material.uniforms[ 'tDiffuse' ];
 
 	        if ( tDiffuse && tDiffuse.value ) {
 
@@ -8600,8 +8589,6 @@
 	        vptc = this.panorama.getWorldPosition( new THREE.Vector3() ).sub( this.camera.getWorldPosition( new THREE.Vector3() ) );
 
 	        hv = vector.clone();
-	        // Scale effect
-	        hv.x *= -1;
 	        hv.add( vptc ).normalize();
 	        vv = hv.clone();
 
@@ -8650,28 +8637,7 @@
 	     */
 	    tweenControlCenterByObject: function ( object, duration, easing ) {
 
-	        let isUnderScalePlaceHolder = false;
-
-	        object.traverseAncestors( function ( ancestor ) {
-
-	            if ( ancestor.scalePlaceHolder ) {
-
-	                isUnderScalePlaceHolder = true;
-
-	            }
-	        } );
-
-	        if ( isUnderScalePlaceHolder ) {
-
-	            const invertXVector = new THREE.Vector3( -1, 1, 1 );
-
-	            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ).multiply( invertXVector ), duration, easing );
-
-	        } else {
-
-	            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ), duration, easing );
-
-	        }
+	        this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ), duration, easing );
 
 	    },
 
@@ -8777,9 +8743,8 @@
 	        if ( intersects.length > 0 ) {
 
 	            const point = intersects[ 0 ].point.clone();
-	            const converter = new THREE.Vector3( -1, 1, 1 );
 	            const world = this.panorama.getWorldPosition( new THREE.Vector3() );
-	            point.sub( world ).multiply( converter );
+	            point.sub( world );
 
 	            const message = `${point.x.toFixed(2)}, ${point.y.toFixed(2)}, ${point.z.toFixed(2)}`;
 

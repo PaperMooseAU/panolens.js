@@ -70,7 +70,7 @@ VideoPanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
 
         const { muted, loop, autoplay, playsinline, crossOrigin } = this.options;
         const video = this.videoElement;
-        const material = this.material;
+        const material = this.background.material;
         const onProgress = this.onProgress.bind( this );
         const onLoad = this.onLoad.bind( this );
 
@@ -477,7 +477,7 @@ VideoPanorama.prototype = Object.assign( Object.create( Panorama.prototype ), {
      */
     dispose: function () {
 
-        const { material: { map } } = this;
+        const map = this.background.material.map;
 
         this.pauseVideo();
 		

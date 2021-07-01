@@ -1195,8 +1195,6 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
         vptc = this.panorama.getWorldPosition( new THREE.Vector3() ).sub( this.camera.getWorldPosition( new THREE.Vector3() ) );
 
         hv = vector.clone();
-        // Scale effect
-        hv.x *= -1;
         hv.add( vptc ).normalize();
         vv = hv.clone();
 
@@ -1245,28 +1243,7 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
      */
     tweenControlCenterByObject: function ( object, duration, easing ) {
 
-        let isUnderScalePlaceHolder = false;
-
-        object.traverseAncestors( function ( ancestor ) {
-
-            if ( ancestor.scalePlaceHolder ) {
-
-                isUnderScalePlaceHolder = true;
-
-            }
-        } );
-
-        if ( isUnderScalePlaceHolder ) {
-
-            const invertXVector = new THREE.Vector3( -1, 1, 1 );
-
-            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ).multiply( invertXVector ), duration, easing );
-
-        } else {
-
-            this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ), duration, easing );
-
-        }
+        this.tweenControlCenter( object.getWorldPosition( new THREE.Vector3() ), duration, easing );
 
     },
 
@@ -1372,9 +1349,8 @@ Viewer.prototype = Object.assign( Object.create( THREE.EventDispatcher.prototype
         if ( intersects.length > 0 ) {
 
             const point = intersects[ 0 ].point.clone();
-            const converter = new THREE.Vector3( -1, 1, 1 );
             const world = this.panorama.getWorldPosition( new THREE.Vector3() );
-            point.sub( world ).multiply( converter );
+            point.sub( world );
 
             const message = `${point.x.toFixed(2)}, ${point.y.toFixed(2)}, ${point.z.toFixed(2)}`;
 

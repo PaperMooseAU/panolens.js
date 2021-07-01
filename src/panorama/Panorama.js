@@ -12,7 +12,12 @@ import TWEEN from '@tweenjs/tween.js';
  */
 function Panorama ( geometry, material ) {
 
-    THREE.Mesh.call( this, geometry, material );
+    THREE.Object3D.call( this );
+
+    this.background = new THREE.Mesh(geometry, material);
+    this.background.renderOrder = -1;
+    this.background.scale.x = -1;
+    this.add(this.background);
 
     this.type = 'panorama';
 
@@ -37,11 +42,8 @@ function Panorama ( geometry, material ) {
     this.linkingImageURL = undefined;
     this.linkingImageScale = undefined;
 
-    this.material.side = THREE.BackSide;
-    this.material.opacity = 0;
-
-    this.scale.x *= -1;
-    this.renderOrder = -1;
+    this.background.material.side = THREE.BackSide;
+    this.background.material.opacity = 0;
 
     this.active = false;
 
@@ -55,7 +57,7 @@ function Panorama ( geometry, material ) {
 
 }
 
-Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
+Panorama.prototype = Object.assign( Object.create( THREE.Object3D.prototype ), {
 
     constructor: Panorama,
 
@@ -68,8 +70,6 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
      * @param {THREE.Object3D} object - The object to be added
      */
     add: function ( object ) {
-
-        let invertedObject;
 
         if ( arguments.length > 1 ) {
 
@@ -85,8 +85,6 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
         // In case of infospots
         if ( object instanceof Infospot ) {
-
-            invertedObject = object;
 
             if ( object.dispatchEvent ) {
 
@@ -108,18 +106,9 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
                 }.bind( this ) } );
             }
-
-        } else {
-
-            // Counter scale.x = -1 effect
-            invertedObject = new THREE.Object3D();
-            invertedObject.scale.x = -1;
-            invertedObject.scalePlaceHolder = true;
-            invertedObject.add( object );
-
         }
 
-        THREE.Object3D.prototype.add.call( this, invertedObject );
+        THREE.Object3D.prototype.add.call( this, object );
 
     },
 
@@ -298,8 +287,8 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
      */
     updateTexture: function ( texture ) {
 
-        this.material.map = texture;
-        this.material.needsUpdate = true;
+        this.background.material.map = texture;
+        this.background.material.needsUpdate = true;
 
     },
 
@@ -452,7 +441,7 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
     setupTransitions: function () {
 
-        this.fadeInAnimation = new TWEEN.Tween( this.material )
+        this.fadeInAnimation = new TWEEN.Tween( this.background.material )
             .easing( TWEEN.Easing.Quartic.Out )
             .onStart( function () {
 
@@ -468,7 +457,7 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
             }.bind( this ) );
 
-        this.fadeOutAnimation = new TWEEN.Tween( this.material )
+        this.fadeOutAnimation = new TWEEN.Tween( this.background.material )
             .easing( TWEEN.Easing.Quartic.Out )
             .onComplete( function () {
 
@@ -505,8 +494,8 @@ Panorama.prototype = Object.assign( Object.create( THREE.Mesh.prototype ), {
 
     onFadeAnimationUpdate: function () {
 
-        if (this.material && this.material.uniforms && this.material.uniforms.opacity ) {
-            uniforms.opacity.value = this.material.opacity;
+        if (this.background.material && this.background.material.uniforms && this.background.material.uniforms.opacity ) {
+            uniforms.opacity.value = this.background.material.opacity;
         }
 
     },

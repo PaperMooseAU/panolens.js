@@ -19,7 +19,7 @@ test('Add Infospots to Panoramas', t => {
 
 test('Add Object to Panoramas', t => {
     panorama.add( object3D );
-    t.true(panorama.children.includes( object3D.parent ));
+    t.true(panorama.children.includes( object3D ));
 });
 
 test('Infospot Event Delegation - Click', t => {
@@ -59,15 +59,15 @@ test('Link Panorama', t => {
     const panorama1 = new Panorama();
     const panorama2 = new Panorama();
     panorama1.link( panorama2 );
-    t.is(panorama1.children.length, 0 );
+    t.is(panorama1.children.length, 1 );
     t.is(panorama1.linkedSpots.length, 0 );
     panorama1.link( panorama2, new THREE.Vector3( 0, 0, -2000 ) );
-    t.true(panorama1.children[ 0 ] instanceof Infospot );
+    t.true(panorama1.children[ 1 ] instanceof Infospot );
     panorama2.setLinkingImage( iconURL, iconScale );
     panorama1.link( panorama2, new THREE.Vector3( 0, 0, -1500 ) );
-    t.true(panorama1.children[ 1 ] instanceof Infospot );
-    panorama1.link( panorama2, new THREE.Vector3( 0, 0, -1000 ), 100, DataImage.Info );
     t.true(panorama1.children[ 2 ] instanceof Infospot );
+    panorama1.link( panorama2, new THREE.Vector3( 0, 0, -1000 ), 100, DataImage.Info );
+    t.true(panorama1.children[ 3 ] instanceof Infospot );
     t.is(panorama1.linkedSpots[ 2 ].toPanorama, panorama2);
 });
 
